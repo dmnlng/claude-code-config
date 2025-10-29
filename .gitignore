@@ -1,0 +1,28 @@
+# Claude Code logs (if logging is enabled)
+.claude/logs/
+*.log
+
+# Keep the template structure visible
+!.claude/logs/.gitkeep
+
+# Backup files created during installation
+.claude.backup.*
+.claude/backups/
+CLAUDE.md.backup.*
+*.backup
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+*~
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+tmp/
+temp/
+*.tmp
