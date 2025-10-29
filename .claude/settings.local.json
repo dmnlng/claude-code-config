@@ -1,0 +1,53 @@
+{
+  "$schema": "https://files.claude.com/schemas/settings.json",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "command": "bash .claude/scripts/validate-bash.sh",
+            "description": "Validates Bash commands to prevent token waste on dependencies and build artifacts"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "deny": [],
+    "allow": [
+      "Bash(curl:*)"
+    ],
+    "ask": []
+  },
+  "_comment_allowedTools": "Whitelist specific tools to skip permission prompts. Examples:",
+  "_examples_allowedTools": [
+    "Edit",
+    "Bash(npm install:*)",
+    "Bash(git commit:*)",
+    "mcp__puppeteer__puppeteer_navigate"
+  ],
+  "allowedTools": [],
+  "_comment_mcpServers": "Configure MCP servers for extended functionality",
+  "_comment_mcpServers_project": "Project-specific servers (local to this directory)",
+  "_comment_mcpServers_global": "Global servers (in ~/.claude/settings.json)",
+  "_example_mcpServers": {
+    "puppeteer": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-puppeteer"
+      ]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/path/to/allowed/dir"
+      ]
+    }
+  },
+  "_comment_headless": "For CI/CD and automation workflows",
+  "_example_headless_usage": "claude --dangerously-skip-permissions -p 'task' --output-format stream-json"
+}
