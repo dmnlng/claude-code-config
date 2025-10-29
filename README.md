@@ -10,21 +10,25 @@ Based on [Anthropic's Best Practices](https://www.anthropic.com/engineering/clau
 
 ## 🚀 Quick Start (2 Steps)
 
-### 1. Run Bootstrap
+### 1. Install Configuration
 
 In your project directory:
 
 ```bash
-claude
-> /bootstrap
+curl -sSL https://raw.githubusercontent.com/dmnlng/claude-code-config/main/install.sh | bash
 ```
 
-Claude will:
+Or with wget:
+```bash
+wget -qO- https://raw.githubusercontent.com/dmnlng/claude-code-config/main/install.sh | bash
+```
+
+This will:
 - Download template from GitHub
 - Auto-detect your project (JS/Python/Rust/Go/etc.)
 - Install all configuration files
 - Customize CLAUDE.md for your stack
-- Run compliance check
+- Set up token optimization
 
 ### 2. Restart Claude
 
@@ -43,6 +47,18 @@ claude
 
 **That's it!** ✅
 
+### Optional: Customize Further
+
+```bash
+> /init
+```
+
+Interactively customize:
+- Workflow guides (TDD, Visual, Multi-Claude)
+- MCP server integrations
+- CLAUDE.md for your team
+- Create git commit
+
 ---
 
 ## What Gets Installed
@@ -58,7 +74,7 @@ your-project/
 │   │   ├── compliance-check.sh  # Config validator
 │   │   └── remote-install.sh    # GitHub downloader
 │   ├── commands/                 # Slash commands
-│   │   ├── bootstrap.md         # /bootstrap - Setup
+│   │   ├── init.md              # /init - Customize config
 │   │   ├── doctor.md            # /doctor - Quick check
 │   │   ├── test.md              # /test - Run tests
 │   │   ├── review.md            # /review - Code review
@@ -335,15 +351,18 @@ git commit -m "chore: add Claude Code optimization
 git push
 ```
 
-Team members just run `/bootstrap` in their clones!
+Team members just run the install command in their clones:
+```bash
+curl -sSL https://raw.githubusercontent.com/dmnlng/claude-code-config/main/install.sh | bash
+```
 
 ---
 
 ## Advanced
 
-### Manual Installation (No /bootstrap)
+### Manual Installation
 
-If you prefer not using the command:
+If you prefer not using the one-liner:
 
 ```bash
 # Clone template
@@ -354,14 +373,18 @@ cd your-project
 bash ~/claude-template/.claude/scripts/setup.sh
 ```
 
-### Environment Variables
+### Custom Template Source
 
-Customize GitHub source:
+Use a forked or modified template:
 
 ```bash
-export CLAUDE_TEMPLATE_REPO="yourname/your-fork"
-export CLAUDE_TEMPLATE_BRANCH="develop"
-> /bootstrap
+# From your fork
+curl -sSL https://raw.githubusercontent.com/yourname/your-fork/main/install.sh | bash
+
+# Or clone and run locally
+git clone https://github.com/yourname/your-fork.git ~/my-template
+cd your-project
+bash ~/my-template/.claude/scripts/setup.sh
 ```
 
 ### CI/CD Integration
@@ -417,7 +440,7 @@ MIT License - See [LICENSE](LICENSE) file for details.
 
 ```bash
 # Setup
-/bootstrap                    # Install configuration
+/init                         # Customize configuration
 /doctor                       # Verify setup
 /compliance                   # Audit config (score)
 

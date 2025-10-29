@@ -1,11 +1,10 @@
 # Quick Start - 2 Steps Only!
 
-## Step 1: Run /bootstrap
+## Step 1: Install
 
 ```bash
 cd your-project
-claude
-> /bootstrap
+curl -sSL https://raw.githubusercontent.com/dmnlng/claude-code-config/main/install.sh | bash
 ```
 
 Wait for installation to complete (~30 seconds).
@@ -46,11 +45,26 @@ You just saved ~82% tokens per session.
 > /compliance        # See your score
 ```
 
+## Optional: Customize
+
+Want to configure workflows, MCP servers, or team settings?
+
+```bash
+> /init
+```
+
+This will guide you through:
+- Enabling workflow guides (TDD, Visual, Multi-Claude)
+- Setting up MCP integrations
+- Customizing CLAUDE.md for your team
+- Creating a git commit
+
 ---
 
 ## What Just Happened?
 
-1. `/bootstrap` downloaded the template from GitHub
+The install script:
+1. Downloaded the template from GitHub
 2. Auto-detected your project type (JS/Python/Rust/etc.)
 3. Installed all configuration files
 4. Set up token optimization hooks
@@ -77,4 +91,4 @@ git commit -m "chore: add Claude Code optimization"
 git push
 ```
 
-Team members just need to run `/bootstrap` in their clones!
+Team members just run the same install command!
