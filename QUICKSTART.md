@@ -61,6 +61,47 @@ This will guide you through:
 
 ---
 
+## Optional: Feature Development with SpecFlow
+
+Want structured feature development with specs, TDD, and verification?
+
+**Step 1: Create project manifest (once):**
+```bash
+> /manifest init
+```
+
+Answer a few questions to create `manifest.md` - your project's constitution.
+
+**Step 2: Create a feature:**
+```bash
+> /feature "Add user authentication"
+```
+
+SpecFlow guides you through:
+1. Spec creation (requirements, user stories, success criteria)
+2. Gap analysis (catches missing requirements)
+3. Technical planning (architecture, test strategy)
+4. Task breakdown (RED → GREEN → REFACTOR)
+5. Implementation and verification
+
+**Step 3: Verify when done:**
+```bash
+> /feature verify 001-user-auth
+```
+
+Gets scored 0-100 with APPROVED/REJECTED status.
+
+**Why use SpecFlow?**
+- ✅ Clear requirements before coding
+- ✅ TDD-enforced (write tests first)
+- ✅ Catches spec gaps early
+- ✅ Comprehensive verification
+- ✅ Less rework, fewer bugs
+
+**Learn more:** See "SpecFlow" section in README.md
+
+---
+
 ## What Just Happened?
 
 The install script:
