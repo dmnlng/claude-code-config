@@ -18,6 +18,11 @@ Execute SpecFlow workflow based on arguments: `$ARGUMENTS`
 /feature verify 001-user-auth
 ```
 
+**Implement feature with guided TDD:**
+```
+/feature implement 001-user-auth
+```
+
 **List all features:**
 ```
 /feature list
