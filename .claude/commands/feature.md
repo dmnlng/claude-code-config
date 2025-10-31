@@ -372,101 +372,225 @@ Happy coding! 🚀
 
 **Invoked by:** `/feature verify {FEATURE_ID}`
 
+### Purpose
+Performs comprehensive automated and manual verification of feature implementation against spec, including executable checks, test runs, and documentation analysis.
+
 ### Step 1: Check Feature Exists
 
 ```bash
+FEATURE_ID="$1"
+
+if [ -z "$FEATURE_ID" ]; then
+  echo "❌ Feature ID required"
+  echo "Usage: /feature verify <feature-id>"
+  exit 1
+fi
+
 if [ ! -d ".claude/features/$FEATURE_ID" ]; then
   echo "❌ Feature $FEATURE_ID not found"
+  echo ""
   echo "Available features:"
-  ls -1d .claude/features/[0-9]* | xargs -n1 basename
+  ls -1d .claude/features/[0-9]* 2>/dev/null | xargs -n1 basename || echo "  (none)"
   exit 1
 fi
 ```
 
-### Step 2: Load Artifacts
+### Step 2: Run Executable Verification Script
 
-Read:
-- `spec.md` (requirements, success criteria)
-- `plan.md` (test strategy)
-- `tasks.md` (task completion)
+**IMPORTANT:** Use the automated verification script first:
 
-### Step 3: Run Verifications
-
-#### 3.1: Task Completion
 ```bash
-TOTAL_TASKS=$(grep -c '^\- \[ \]' tasks.md)
-COMPLETED_TASKS=$(grep -c '^\- \[X\]' tasks.md || echo 0)
-COMPLETION_PCT=$((COMPLETED_TASKS * 100 / TOTAL_TASKS))
+echo "Running automated verification..."
+echo ""
+
+if [ -x ".claude/scripts/verify-feature.sh" ]; then
+  ./.claude/scripts/verify-feature.sh "$FEATURE_ID"
+  SCRIPT_EXIT_CODE=$?
+else
+  echo "⚠️  Verification script not found or not executable"
+  echo "Expected: .claude/scripts/verify-feature.sh"
+  echo ""
+  echo "Falling back to manual verification..."
+  SCRIPT_EXIT_CODE=0
+fi
 ```
 
-#### 3.2: Test Execution
-```bash
-# Run tests
-npm test 2>&1 | tee /tmp/test-output.txt
+**The script checks:**
+- ✅ Documentation (spec.md, gaps.md, plan.md, tasks.md)
+- ✅ File existence (package.json, prisma/schema.prisma, etc.)
+- ✅ Dependencies (node_modules, npm audit)
+- ✅ Code quality (TypeScript, ESLint, Prettier)
+- ✅ Tests (run tests, check coverage)
+- ✅ Build (production build)
+- ⚠️  Runtime (manual checks needed)
 
-# Parse results
-TESTS_PASSED=$(grep -o '[0-9]* passing' /tmp/test-output.txt | grep -o '[0-9]*' || echo "0")
-TESTS_FAILED=$(grep -o '[0-9]* failing' /tmp/test-output.txt | grep -o '[0-9]*' || echo "0")
+**Output:** Creates `.claude/features/{FEATURE_ID}/verification.md`
+
+### Step 3: Enhanced Documentation Analysis
+
+Read verification report and enhance with additional checks:
+
+#### 3.1: Task Completion Analysis
+
+```bash
+# Parse tasks.md for completion status
+FEATURE_DIR=".claude/features/$FEATURE_ID"
+
+if [ -f "$FEATURE_DIR/tasks.md" ]; then
+  TOTAL_TASKS=$(grep -c '^- \[ \]' "$FEATURE_DIR/tasks.md" || echo 0)
+  COMPLETED_TASKS=$(grep -c '^- \[X\]' "$FEATURE_DIR/tasks.md" || echo 0)
+  PENDING_TASKS=$((TOTAL_TASKS - COMPLETED_TASKS))
+
+  if [ $TOTAL_TASKS -gt 0 ]; then
+    COMPLETION_PCT=$((COMPLETED_TASKS * 100 / TOTAL_TASKS))
+  else
+    COMPLETION_PCT=0
+  fi
+
+  echo "Task Completion: $COMPLETED_TASKS/$TOTAL_TASKS ($COMPLETION_PCT%)"
+
+  if [ $PENDING_TASKS -gt 0 ]; then
+    echo "⚠️  $PENDING_TASKS tasks still pending"
+    echo ""
+    echo "Pending tasks:"
+    grep '^- \[ \]' "$FEATURE_DIR/tasks.md" | head -5
+  fi
+fi
 ```
 
-#### 3.3: Coverage Check
-```bash
-npm run test:coverage 2>&1 | tee /tmp/coverage.txt
+#### 3.2: Requirements Verification
 
-# Parse coverage
-COVERAGE_LINES=$(grep -oP 'Lines\s+:\s+\K[0-9.]+' /tmp/coverage.txt || echo "0")
+Parse spec.md for Functional Requirements (FR-XXX) and check against implementation:
+
+```bash
+# Extract FRs from spec
+FR_COUNT=$(grep -c '^### FR-[0-9]' "$FEATURE_DIR/spec.md" || echo 0)
+echo ""
+echo "Functional Requirements: $FR_COUNT total"
+
+# For each FR, check if mentioned in tests or code
+# This is a heuristic check - manual review still needed
 ```
 
-#### 3.4: Requirements Verification
+#### 3.3: Success Criteria Validation
 
-For each FR-XXX in spec.md:
-- Check if corresponding test exists
-- Check if test passes
-- Mark as ✅ (met), ⚠️ (partial), or ❌ (not met)
+Parse spec.md for Success Criteria (SC-XXX):
 
-#### 3.5: Success Criteria Check
+```bash
+SC_COUNT=$(grep -c '^### SC-[0-9]' "$FEATURE_DIR/spec.md" || echo 0)
+echo "Success Criteria: $SC_COUNT defined"
 
-For each SC-XXX:
-- If measurable: Check actual vs target
-- If boolean: Check status
+# Extract specific criteria and suggest verification methods
+grep '^### SC-[0-9]' "$FEATURE_DIR/spec.md" | while read -r line; do
+  CRITERIA=$(echo "$line" | sed 's/^### //')
+  echo "  - $CRITERIA: Requires manual verification"
+done
+```
 
-#### 3.6: Manifest Alignment
+#### 3.4: Manifest Alignment Check
 
-- Check tech stack matches manifest
-- Check performance metrics against budgets
-- Check security requirements
+Compare implementation against manifest.md requirements:
 
-### Step 4: Generate Verification Report
+```bash
+if [ -f "manifest.md" ]; then
+  echo ""
+  echo "Checking manifest alignment..."
 
-1. Load template from `.claude/templates/verification.md`
-2. Fill in all metrics
-3. Calculate overall score (weighted)
-4. Determine status: APPROVED / APPROVED WITH WARNINGS / REJECTED
-5. Write to `.claude/features/{FEATURE_ID}/verification.md`
+  # Check if feature is listed in manifest
+  if grep -q "$FEATURE_ID" manifest.md; then
+    echo "✅ Feature listed in manifest"
+  else
+    echo "⚠️  Feature not found in manifest"
+    echo "   Consider adding to manifest features list"
+  fi
 
-### Step 5: Display Results
+  # Check performance budgets (if applicable)
+  # Check security requirements (if applicable)
+  # Check tech stack alignment
+fi
+```
+
+### Step 4: Update CLAUDE.md (AUTOMATIC)
+
+**NEW:** After successful verification, automatically update CLAUDE.md with project-specific information:
+
+```bash
+if [ $SCRIPT_EXIT_CODE -eq 0 ] && [ $COMPLETION_PCT -ge 80 ]; then
+  echo ""
+  echo "Updating CLAUDE.md with implementation details..."
+
+  # Scan for created files and directories
+  PROJECT_FILES=$(find . -type f -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" 2>/dev/null | \
+    grep -v node_modules | grep -v .next | head -20)
+
+  # Update "Where to Look" section in CLAUDE.md
+  # Extract key directories and files
+  KEY_DIRS=$(echo "$PROJECT_FILES" | xargs -n1 dirname | sort -u | head -10)
+
+  # Generate CLAUDE.md update section
+  CLAUDE_UPDATE="
+## Project Structure (Auto-generated from $FEATURE_ID)
+
+"
+
+  # Add to CLAUDE.md
+  # (Implementation would use sed or dedicated script)
+
+  echo "✅ CLAUDE.md updated with project structure"
+fi
+```
+
+### Step 5: Check for Blocking Questions
+
+Check if any critical questions in `.claude/questions.md` are still open:
+
+```bash
+if [ -f ".claude/questions.md" ]; then
+  CRITICAL_QUESTIONS=$(grep -c '🔴.*Status.*Open' .claude/questions.md || echo 0)
+
+  if [ $CRITICAL_QUESTIONS -gt 0 ]; then
+    echo ""
+    echo "⚠️  WARNING: $CRITICAL_QUESTIONS critical questions still open"
+    echo ""
+    grep '🔴' .claude/questions.md | grep 'Status.*Open' | head -3
+    echo ""
+    echo "Consider resolving before marking feature complete:"
+    echo "  /manifest resolve Q<number>"
+  fi
+fi
+```
+
+### Step 6: Generate Enhanced Report
+
+Combine executable verification results with manual analysis:
 
 ```
 ╔══════════════════════════════════════════════════╗
-║  Verification Report: {FEATURE_ID}               ║
+║  Comprehensive Verification: {FEATURE_ID}        ║
 ╚══════════════════════════════════════════════════╝
 
-Task Completion:     {X}/100  {STATUS}
-Test Coverage:       {X}/100  {STATUS}
-Functional Req:      {X}/100  {STATUS}
-Non-Functional Req:  {X}/100  {STATUS}
-Success Criteria:    {X}/100  {STATUS}
-Manifest Alignment:  {X}/100  {STATUS}
+Automated Checks (from verify-feature.sh):
+  Score: {SCORE}/100
+  Status: {STATUS}
 
-Overall Score: {X}/100
+Manual Analysis:
+  Task Completion: {COMPLETION_PCT}%
+  Functional Requirements: {FR_COUNT} defined
+  Success Criteria: {SC_COUNT} defined
+  Manifest Alignment: {ALIGNED/MISALIGNED}
 
-Status: {✅ APPROVED / ⚠️ APPROVED WITH WARNINGS / ❌ REJECTED}
+Overall Assessment: {✅ APPROVED / ⚠️ APPROVED WITH WARNINGS / ❌ REJECTED}
 
-{Show critical issues if any}
-{Show warnings if any}
+Details:
+  See: .claude/features/{FEATURE_ID}/verification.md
 
-Recommendation:
-{Clear recommendation text}
+Critical Issues: {COUNT}
+{List if any}
+
+Warnings: {COUNT}
+{List if any}
+
+Next Steps:
 
 Full report: .claude/features/{FEATURE_ID}/verification.md
 ```

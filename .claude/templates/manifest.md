@@ -249,6 +249,52 @@
 
 ---
 
+## Feature Roadmap & Dependencies
+
+### Features Overview
+
+Track all features and their dependencies:
+
+```markdown
+- [x] 001-project-setup (COMPLETED 2024-01-15)
+  - Depends on: None (foundation)
+  - Blocks: ALL features
+
+- [ ] 002-user-authentication (IN PROGRESS)
+  - Depends on: 001-project-setup ✅
+  - Blocks: 003-appointments, 004-member-management
+  - Status: ⏳ In development
+
+- [ ] 003-appointments-management (BLOCKED)
+  - Depends on: 001-project-setup ✅, 002-user-authentication ❌
+  - Status: 🚫 Blocked by 002
+```
+
+**Status Icons:**
+- ✅ Completed
+- ⏳ In Progress
+- 🚫 Blocked
+- ⏸️  Paused
+- 📋 Planned
+
+### Dependency Rules
+
+**IMPORTANT:** `/feature` command checks dependencies before allowing new features:
+
+```bash
+/feature "appointments management"
+
+❌ ERROR: Feature dependencies not met
+   Required: 002-user-authentication (❌ not complete)
+
+   Complete blocking features first:
+   1. /feature implement 002-user-authentication
+   2. /feature verify 002-user-authentication
+   3. /manifest update (mark 002 complete)
+```
+
+---
+
 ## Feature Development Workflow
 
 This project uses **SpecFlow** for feature development:

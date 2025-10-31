@@ -23,6 +23,12 @@ Manage project manifest based on arguments: `$ARGUMENTS`
 /manifest show
 ```
 
+**Resolve open question:**
+```
+/manifest resolve Q<number>
+```
+Example: `/manifest resolve Q3`
+
 ---
 
 ## Mode 1: Initialize Manifest
@@ -279,6 +285,228 @@ Security Requirements:
   - {List from manifest}
 
 Full manifest: manifest.md
+```
+
+---
+
+## Mode 4: Resolve Question
+
+**Invoked by:** `/manifest resolve Q<number>`
+
+Example: `/manifest resolve Q3`
+
+### Purpose
+Interactive resolution of open questions from `.claude/questions.md`. This command guides you through answering critical questions, documents the decision, and updates both `questions.md` and `manifest.md`.
+
+### Step 1: Validate Input
+
+```bash
+QUESTION_ID="$1"  # e.g., "Q3"
+
+if [ -z "$QUESTION_ID" ]; then
+  echo "❌ Question ID required"
+  echo "Usage: /manifest resolve Q<number>"
+  echo "Example: /manifest resolve Q3"
+  exit 1
+fi
+
+if [ ! -f ".claude/questions.md" ]; then
+  echo "❌ .claude/questions.md not found"
+  echo "No questions to resolve."
+  exit 1
+fi
+```
+
+### Step 2: Extract Question Details
+
+Parse `.claude/questions.md` to find the question:
+
+```bash
+# Extract question section
+QUESTION_SECTION=$(sed -n "/### 🔴 ${QUESTION_ID}:/,/^---$/p" .claude/questions.md)
+
+if [ -z "$QUESTION_SECTION" ]; then
+  # Try other priority levels
+  QUESTION_SECTION=$(sed -n "/### 🟡 ${QUESTION_ID}:/,/^---$/p" .claude/questions.md)
+fi
+
+if [ -z "$QUESTION_SECTION" ]; then
+  QUESTION_SECTION=$(sed -n "/### 🟢 ${QUESTION_ID}:/,/^---$/p" .claude/questions.md)
+fi
+
+if [ -z "$QUESTION_SECTION" ]; then
+  echo "❌ Question ${QUESTION_ID} not found in questions.md"
+  exit 1
+fi
+```
+
+Display question details to user:
+```
+╔══════════════════════════════════════════════════╗
+║  Resolving Question: {QUESTION_ID}              ║
+╚══════════════════════════════════════════════════╝
+
+{QUESTION_TITLE}
+Priority: {PRIORITY}
+Category: {CATEGORY}
+
+Question:
+{QUESTION_TEXT}
+
+Context:
+{CONTEXT_TEXT}
+
+Options (if any):
+{OPTIONS_TEXT}
+```
+
+### Step 3: Check if Already Resolved
+
+```bash
+if echo "$QUESTION_SECTION" | grep -q "Status.*Resolved"; then
+  echo "⚠️  Question ${QUESTION_ID} is already resolved"
+  echo ""
+  echo "Resolution:"
+  # Extract resolution text
+  echo ""
+  echo "Do you want to change the resolution? (y/n)"
+  # If no, exit
+fi
+```
+
+### Step 4: Collect Resolution
+
+**For questions with predefined options:**
+
+Use AskUserQuestion tool:
+- Header: "Decision"
+- Question: "What is your decision for {QUESTION_ID}?"
+- Options: Extract from question (or generic if none)
+  - Option 1 from question
+  - Option 2 from question
+  - "Custom answer"
+
+**For open-ended questions:**
+
+Ask for free-text input:
+```
+Enter your decision/answer:
+> [User types answer]
+
+Why did you choose this? (reasoning):
+> [User types reasoning]
+```
+
+### Step 5: Update questions.md
+
+Update the question status to "Resolved":
+
+```markdown
+### 🟢 {QUESTION_ID}: {TITLE}
+**Category:** {CATEGORY}
+**Priority:** {ORIGINAL_PRIORITY}
+**Status:** ✅ Resolved
+
+**Question:**
+{ORIGINAL_QUESTION}
+
+**Resolution:** (Date: {TODAY})
+{USER_DECISION}
+
+**Reasoning:**
+{USER_REASONING}
+
+**Resolved By:** {GIT_USER_NAME}
+
+---
+```
+
+### Step 6: Update manifest.md
+
+Based on question category, update relevant manifest sections:
+
+**If Category = "Technical" (Tech Stack):**
+- Update "Technology Stack" section
+- Add to "Architecture Decisions" if applicable
+
+**If Category = "Security":**
+- Update "Security Requirements" section
+
+**If Category = "Deployment":**
+- Update "Deployment & Hosting" section
+
+**If Category = "Performance":**
+- Update "Performance Requirements" section
+
+**For Critical Questions:**
+- Update "Open Questions & Clarifications" section
+- Remove from critical list
+- Update Readiness Checklist if applicable
+
+Example update:
+```markdown
+## Open Questions & Clarifications
+
+### Critical Questions (Blocking Development)
+- ~~Q3: Authentication strategy~~ ✅ Resolved (2025-10-31): Using custom JWT
+```
+
+### Step 7: Git Commit
+
+Create commit with resolution:
+
+```bash
+git add .claude/questions.md manifest.md
+
+git commit -m "resolve(${QUESTION_ID}): ${QUESTION_TITLE}
+
+Decision: ${USER_DECISION}
+
+Reasoning: ${USER_REASONING}
+
+Category: ${CATEGORY}
+Priority: ${PRIORITY}
+
+Updates:
+- questions.md: Marked ${QUESTION_ID} as resolved
+- manifest.md: Updated ${AFFECTED_SECTION}
+
+🤖 Generated with Claude Code
+https://claude.com/claude-code"
+```
+
+### Step 8: Show Summary
+
+```
+✅ Question Resolved: {QUESTION_ID}
+
+Decision: {USER_DECISION}
+
+Files Updated:
+  • .claude/questions.md
+  • manifest.md
+
+Git Commit: {COMMIT_HASH}
+
+{REMAINING_CRITICAL_QUESTIONS_COUNT} critical questions remaining.
+
+Next Steps:
+  - Review manifest.md to verify updates
+  - Continue resolving questions: /manifest resolve Q<number>
+  - Start feature development: /feature "feature name"
+```
+
+### Step 9: Check Feature Blockers
+
+If this was a CRITICAL question, check if any features are now unblocked:
+
+```bash
+# Scan .claude/features/*/spec.md for mentions of this question
+# If found, notify user:
+
+⚠️  Feature {FEATURE_ID} was blocked by {QUESTION_ID}
+   You can now proceed with implementation.
+   Run: /feature implement {FEATURE_ID}
 ```
 
 ---
