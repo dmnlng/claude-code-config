@@ -178,7 +178,7 @@ echo ""
 echo -e "Steps:"
 echo -e "  1. ${CYAN}Exit Claude:${NC} Press Ctrl+C"
 echo -e "  2. ${CYAN}Restart:${NC} Run 'claude' again"
-echo -e "  3. ${CYAN}Verify:${NC} Try /doctor command"
+echo -e "  3. ${CYAN}Run Setup:${NC} Type /init to complete project setup"
 echo ""
 
 echo -e "${BLUE}🎯 After Restart - IMPORTANT:${NC}"

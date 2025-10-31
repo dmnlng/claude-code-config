@@ -11,14 +11,15 @@ curl -sSL https://raw.githubusercontent.com/dmnlng/claude-code-config/main/insta
 
 ## Task
 
-Perform comprehensive interactive initialization covering:
-1. Claude Code configuration customization
-2. Git repository setup
-3. Project manifest creation with vision and goals
+Perform fully automated project bootstrap covering:
+1. Automatic Claude Code configuration (based on project detection)
+2. Automatic Git repository setup
+3. Interactive project manifest creation (vision, goals, tech stack)
 4. Open questions tracking
 5. Development readiness validation
+6. Automatic git commit
 
-This is typically run **once** after installation to set up a new project.
+This is typically run **once** after installation. The process is streamlined - Claude will auto-configure settings and only ask questions about **your project** (not about config options).
 
 ---
 
@@ -107,74 +108,51 @@ We'll help you complete the missing pieces.
 
 ---
 
-## Step 3: Configuration Customization
+## Step 3: Automatic Configuration Setup
 
-Ask user what to customize (multi-select):
+**Purpose:** Automatically configure CLAUDE.md based on detected project type and sensible defaults.
 
-**Question: "What would you like to customize?"**
-- Header: "Customize"
-- Options:
-  1. **CLAUDE.md** - "Update project context and code style guidelines"
-  2. **Workflows** - "Enable specific workflow guides (TDD, Visual, Multi-Claude)"
-  3. **MCP Servers** - "Configure Model Context Protocol integrations"
-- Multi-select: true
+### Auto-Detect and Apply Configuration
 
-### If "CLAUDE.md" selected:
+No questions needed - automatically configure based on best practices:
 
-Ask follow-up questions:
+**Actions:**
+1. **Detect Project Type** (from Step 2)
+2. **Update CLAUDE.md automatically:**
+   - Replace `[web application / library / CLI tool / etc.]` with detected type
+   - Set workflow to "Test-Driven Development (TDD)" (default best practice)
+   - Set team size to "Solo developer" (can be changed later)
+   - Fill in test commands based on detected stack
+   - Update tech stack placeholders with detected values
 
-**Question 1: "What is your primary development workflow?"**
-- Header: "Workflow"
-- Options:
-  - "Test-Driven Development (TDD)"
-  - "Feature-first development"
-  - "Rapid prototyping"
-  - "Other"
+**Example Auto-Configuration:**
+```bash
+# For JavaScript/TypeScript project:
+- Project type: JavaScript/TypeScript project
+- Test command: npm test
+- Build command: npm run build
+- Linter: npm run lint
 
-**Question 2: "What is your team size?"**
-- Header: "Team"
-- Options:
-  - "Solo developer"
-  - "Small team (2-5)"
-  - "Medium team (6-15)"
-  - "Large team (16+)"
+# For Python project:
+- Project type: Python project
+- Test command: pytest
+- Linter: ruff check .
+- Formatter: black .
+```
 
-Then update CLAUDE.md with:
-- Fill in placeholders with detected values
-- Add workflow section based on answer
-- Add team-specific guidelines based on size
-- Ensure test commands are filled in
+**Show what was configured:**
+```
+✅ Configuration Applied:
+  • Project Type: {PROJECT_TYPE}
+  • Workflow: Test-Driven Development (TDD)
+  • Team Size: Solo developer
+  • Test Framework: {DETECTED_TEST_FRAMEWORK}
+  • CLAUDE.md updated with project-specific settings
 
-### If "Workflows" selected:
+You can manually edit CLAUDE.md later to adjust these settings.
+```
 
-Ask which workflows to enable:
-
-**Question: "Which workflow guides do you want to highlight?"**
-- Header: "Workflows"
-- Options:
-  - "TDD Workflow" - "Red-Green-Refactor development pattern"
-  - "Visual Iteration" - "UI development with screenshots"
-  - "Multi-Claude" - "Parallel development with git worktrees"
-- Multi-select: true
-
-Then add a workflows section to CLAUDE.md pointing to the selected guides.
-
-### If "MCP Servers" selected:
-
-Ask which MCP servers to enable:
-
-**Question: "Which MCP servers do you want to configure?"**
-- Header: "MCP"
-- Options:
-  - "Puppeteer" - "Browser automation for UI testing"
-  - "Filesystem" - "Extended file system access"
-  - "None" - "Skip MCP configuration"
-- Multi-select: false
-
-Then update `.claude/settings.local.json`:
-- Uncomment MCP examples section
-- Add selected server configurations
-- Show user how to verify MCP is working
+**Note:** No workflows or MCP server configuration needed upfront - users can add these later if needed.
 
 ---
 
@@ -617,13 +595,22 @@ Overall Status:
 
 ---
 
-## Step 8: Git Commit (Comprehensive Configuration)
+## Step 8: Automatic Git Commit
 
-Create a comprehensive commit with all initialization artifacts.
+**Purpose:** Automatically commit all initialization artifacts to git.
+
+### Create Comprehensive Commit
+
+No questions - automatically commit everything:
 
 ```bash
 # Stage all initialization files
-git add .claude/ CLAUDE.md manifest.md .claude/questions.md .gitignore
+git add .claude/ CLAUDE.md manifest.md .gitignore
+
+# Add questions.md if it was created
+if [ -f ".claude/questions.md" ]; then
+    git add .claude/questions.md
+fi
 
 # Create comprehensive commit
 git commit -m "chore: complete project initialization
@@ -637,14 +624,13 @@ Project Setup:
 Artifacts Created:
 - manifest.md: Project vision, goals, tech stack, constraints
 - .claude/questions.md: Open questions tracking ({N} questions)
-- CLAUDE.md: Customized for {WORKFLOW} workflow
+- CLAUDE.md: Auto-configured for TDD workflow
 - .claude/: Token optimization (91 patterns), hooks, commands
 
 Configuration:
 - Bash validation hook: Active
 - Token optimization: ~82% savings per session
-- Workflows enabled: {WORKFLOW_LIST}
-- MCP servers: {MCP_LIST}
+- Development workflow: Test-Driven Development
 
 Readiness Score: {SCORE}/10 ({STATUS})
 
@@ -652,6 +638,11 @@ Readiness Score: {SCORE}/10 ({STATUS})
 https://claude.com/claude-code"
 
 echo "✅ Initialization committed to git"
+```
+
+**Show Commit:**
+```bash
+git log -1 --stat
 ```
 
 ---
