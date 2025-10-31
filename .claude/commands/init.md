@@ -405,84 +405,221 @@ Use /feature to start building features aligned with this vision.
 
 ---
 
-## Step 6: Open Questions Tracking
+## Step 6: Automated Question Analysis
 
-After manifest creation, identify any unresolved questions.
+**Purpose:** Claude automatically analyzes the manifest to identify any unresolved questions or decisions that need clarification before development starts.
 
-### Ask About Open Questions
+### Manifest Analysis Process
 
 ```
 ╔══════════════════════════════════════════════════╗
-║  Open Questions & Clarifications                 ║
+║  Analyzing Manifest for Open Questions          ║
 ╚══════════════════════════════════════════════════╝
 
-Let's document any unresolved questions or areas that need
-clarification before development starts.
-
-Examples of common questions:
-  • Which third-party services to integrate?
-  • Specific authentication provider (Auth0, Firebase, custom)?
-  • Exact database schema design?
-  • Which cloud region for deployment?
-  • Rate limiting strategy?
+Scanning for:
+  ✓ Placeholder values ({PLACEHOLDER}, TBD, TODO)
+  ✓ Ambiguous requirements or missing details
+  ✓ Incomplete tech stack selections
+  ✓ Missing critical decisions
+  ✓ Common decision points (auth, deployment, etc.)
 ```
 
-**Ask: "Do you have any unresolved questions or areas needing clarification?"**
-- Options:
-  - "Yes, let me list them"
-  - "No, everything is clear"
+**Claude should automatically:**
 
-### If Yes, Collect Questions
+1. **Read the manifest.md file**
+2. **Identify gaps and ambiguities**
+3. **Generate specific questions with context**
+4. **Classify by priority (Critical/High/Medium/Low)**
+5. **Provide recommendations for each question**
+6. **Create .claude/questions.md automatically**
 
-For each question, ask:
+### What to Look For
 
-**"Describe the question:"**
-- Free text input
+**🔴 Critical Questions (Block ALL Development):**
+- Missing database selection (`{DATABASE}` placeholder)
+- No authentication method specified
+- Undefined deployment platform
+- Missing core tech stack choices
 
-**"What category is this?"**
-- Options: "Technical", "Business", "Deployment", "Third-Party", "Performance", "Security"
+**🟠 High Priority Questions (Block Specific Features):**
+- Third-party service selection (payment, email, SMS)
+- Specific library/framework choices
+- API versioning strategy
+- Rate limiting approach
 
-**"How critical is this?"**
-- Options:
-  - "Critical (blocks development)"
-  - "High (should resolve soon)"
-  - "Medium (has workaround)"
-  - "Low (can defer)"
+**🟡 Medium Priority Questions (Have Workarounds):**
+- Email template design
+- Exact database schema fields
+- UI component library choice
+- Monitoring tool selection
 
-### Create .claude/questions.md
+**🟢 Low Priority Questions (Can Defer):**
+- Analytics tool choice
+- Future feature prioritization
+- Optional integrations
 
-Copy template and populate with questions:
+### Auto-Generate Question Format
 
-```bash
-cp .claude/templates/questions.md .claude/questions.md
-```
-
-Populate the appropriate sections based on priority:
-- Critical → "Critical Questions (Blocking Development)"
-- High → "High Priority Questions"
-- Medium → "Medium Priority Questions"
-- Low → "Low Priority Questions"
-
-**Update manifest.md** Open Questions section:
-
-List critical questions in the manifest so they're visible:
+For each identified gap, Claude creates a structured question:
 
 ```markdown
-### Critical Questions (Blocking Development)
-- 🔴 Q1: [Question title] (See .claude/questions.md for details)
+### Q{N}: {Specific Question Title}
+**Category:** {Technical/Business/Deployment/Third-Party/Performance/Security}
+**Priority:** 🔴 Critical / 🟠 High / 🟡 Medium / 🟢 Low
+**Status:** Open
+**Blocks:** {What features or tasks this blocks}
+
+**Question:**
+{Clear, specific question that needs resolution}
+
+**Context:**
+{Why this needs to be answered, what it affects, current state in manifest}
+
+**Options/Considerations:**
+1. **{Option 1}**
+   - Pros: {Benefits}
+   - Cons: {Drawbacks}
+   - Effort: {Low/Medium/High}
+
+2. **{Option 2}**
+   - Pros: {Benefits}
+   - Cons: {Drawbacks}
+   - Effort: {Low/Medium/High}
+
+3. **{Option 3}**
+   - Pros: {Benefits}
+   - Cons: {Drawbacks}
+   - Effort: {Low/Medium/High}
+
+**Recommendation:**
+{Claude's suggested approach based on manifest context, project type, and best practices}
+
+**Reasoning:**
+{Why this recommendation makes sense for this specific project}
+
+**Decision:** _TBD_
+**Decided By:** _TBD_
+**Date:** _TBD_
+**Resolution:** _To be filled when resolved_
 ```
 
-**Show Summary:**
+### Example Auto-Generated Question
+
+```markdown
+### Q1: Database Selection for User Management
+**Category:** Technical
+**Priority:** 🔴 Critical
+**Status:** Open
+**Blocks:** 001-project-setup, 002-user-authentication, all data models
+
+**Question:**
+Which database should we use for user data, authentication, and task management?
+
+**Context:**
+The manifest shows `{DATABASE}` placeholder in Technology Stack section.
+This is a critical decision that affects:
+- Data modeling approach
+- Query patterns
+- Scaling strategy
+- ORM/query builder choice
+- Deployment complexity
+
+**Options/Considerations:**
+1. **PostgreSQL**
+   - Pros: Strong ACID guarantees, excellent for relational data, mature ecosystem, Prisma support
+   - Cons: Requires dedicated server/container, more complex than SQLite
+   - Effort: Medium (Docker setup, migrations)
+
+2. **MongoDB**
+   - Pros: Flexible schema, horizontal scaling, JSON-native
+   - Cons: Weak consistency by default, overkill for simple CRUD
+   - Effort: Medium (Atlas cloud or self-hosted)
+
+3. **SQLite**
+   - Pros: Zero config, file-based, perfect for MVP/solo dev
+   - Cons: Not suitable for concurrent writes, migration path to PostgreSQL later
+   - Effort: Low (built-in to most runtimes)
+
+**Recommendation:**
+**PostgreSQL** with Prisma ORM
+
+**Reasoning:**
+Given the project type (web application) and requirements (user authentication, task management):
+- Relational data model fits naturally (users, tasks, assignments)
+- ACID guarantees important for auth and data integrity
+- Prisma provides type-safe queries and easy migrations
+- Scalable path forward (can add read replicas, connection pooling)
+- Manifest already specifies Prisma as ORM
+
+**Decision:** _TBD_
+**Decided By:** _TBD_
+**Date:** _TBD_
+**Resolution:** _To be filled when resolved_
+```
+
+### Create .claude/questions.md Automatically
+
+**Claude's workflow:**
+
+1. **Copy template:**
+   ```bash
+   cp .claude/templates/questions.md .claude/questions.md
+   ```
+
+2. **Populate with auto-generated questions:**
+   - Group by priority (Critical / High / Medium / Low)
+   - Include all context, options, and recommendations
+   - Format consistently using the template above
+
+3. **Update manifest.md Open Questions section:**
+   ```markdown
+   ### Critical Questions (Blocking Development)
+   - 🔴 Q1: Database Selection for User Management (See .claude/questions.md)
+   - 🔴 Q2: Authentication Provider Choice (See .claude/questions.md)
+   ```
+
+4. **Show analysis results:**
+   ```
+   ╔══════════════════════════════════════════════════╗
+   ║  Question Analysis Complete                      ║
+   ╚══════════════════════════════════════════════════╝
+
+   📋 Identified Questions:
+     🔴 Critical: {N} questions (BLOCK ALL DEVELOPMENT)
+     🟠 High: {N} questions (block specific features)
+     🟡 Medium: {N} questions (have workarounds)
+     🟢 Low: {N} questions (can defer)
+
+   All questions documented in .claude/questions.md with:
+     ✓ Context and impact analysis
+     ✓ Options with pros/cons
+     ✓ Recommendations
+     ✓ Resolution tracking
+
+   Next Steps:
+     1. Review questions in .claude/questions.md
+     2. Use /manifest resolve Q<number> to resolve each question
+     3. Critical questions MUST be resolved before /feature development
+   ```
+
+### If NO Questions Found
+
+If Claude finds no placeholders or ambiguities:
 
 ```
-✅ Open questions documented
+╔══════════════════════════════════════════════════╗
+║  Question Analysis Complete                      ║
+╚══════════════════════════════════════════════════╝
 
-📋 Questions Summary:
-  🔴 Critical: {N} questions
-  🟡 High: {N} questions
-  🟢 Medium/Low: {N} questions
+✅ No critical questions identified
 
-All questions tracked in .claude/questions.md
+Manifest analysis shows:
+  ✓ All tech stack choices specified
+  ✓ No placeholder values found
+  ✓ Core requirements are clear
+  ✓ Deployment strategy defined
+
+You can start feature development immediately with /feature
 
 IMPORTANT: Resolve critical questions before starting /feature development.
 ```
