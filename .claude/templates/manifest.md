@@ -297,6 +297,43 @@ Mark the feature as complete:
 
 ---
 
+## Open Questions & Clarifications
+
+**Status:** See `.claude/questions.md` for detailed tracking
+
+### Critical Questions (Blocking Development)
+{LIST_CRITICAL_QUESTIONS}
+
+**Instructions:** List any critical questions that must be resolved before feature development. Full details in `.claude/questions.md`.
+
+**Example:**
+- 🔴 Q1: Authentication strategy not finalized (OAuth vs JWT vs sessions)
+- 🔴 Q3: Third-party payment gateway selection pending
+
+### Readiness Checklist
+
+Before starting feature development, ensure:
+
+- [ ] **Vision Clarity**: Project vision is clearly articulated (2-3 sentences)
+- [ ] **Business Goals Defined**: At least 3 measurable business goals documented
+- [ ] **Users Identified**: Primary users and their needs are defined
+- [ ] **Core Features Listed**: At least 3 must-have features identified for v1.0
+- [ ] **Tech Stack Decided**: Frontend, backend, database, and testing frameworks chosen
+- [ ] **Deployment Target Known**: Hosting platform and environment strategy defined
+- [ ] **Performance Priorities Set**: Performance budgets defined based on priority level
+- [ ] **Security Requirements Clear**: Auth, data protection, and compliance needs documented
+- [ ] **Critical Questions Resolved**: No blocking questions remain in `.claude/questions.md`
+- [ ] **First Feature Ready**: First feature idea identified for `/feature` command
+
+**Readiness Score:** {X}/10 items completed
+
+**Status:**
+- ✅ **Ready** (10/10) - Start feature development with `/feature`
+- ⚠️ **Mostly Ready** (7-9/10) - Review incomplete items, decide if blockers
+- 🚫 **Not Ready** (<7/10) - Complete remaining items before `/feature`
+
+---
+
 ## Change Log
 
 ### v1.0.0 (Target: {TARGET_DATE})
