@@ -1,10 +1,85 @@
-# Claude Code Template - Token Optimized
+# reqflow - Requirements-Driven Development Framework
 
-**Save ~82% tokens per session** with this production-ready Claude Code configuration.
+**A comprehensive framework for spec-driven development with Claude Code.**
 
-Prevents Claude from wasting tokens on `node_modules`, build artifacts, and git internals through intelligent bash validation and read permissions.
+reqflow transforms requirements into production code through structured workflows, comprehensive testing strategies, and token-optimized Claude Code configuration.
 
-Based on [Anthropic's Best Practices](https://www.anthropic.com/engineering/claude-code-best-practices) + community optimizations.
+**Core Features:**
+- 📋 Requirements-driven feature development (manifest → spec → plan → implement → verify)
+- ✅ Comprehensive test documentation (test cases, expected results, actual results)
+- 🔬 TDD-enforced workflows (RED → GREEN → REFACTOR)
+- ⚡ ~82% token savings through intelligent optimization
+- 📊 Automated verification and quality gates
+
+Based on [Anthropic's Best Practices](https://www.anthropic.com/engineering/claude-code-best-practices) + production-tested workflows.
+
+---
+
+## What is reqflow?
+
+**reqflow** is a requirements-driven development framework that bridges the gap between project vision and production-ready code. Unlike traditional development approaches where requirements often get lost or drift during implementation, reqflow maintains traceability from initial requirements through testing and deployment.
+
+### The reqflow Philosophy
+
+**Traditional Problem:**
+```
+Vague idea → Start coding → Tests as afterthought → "Is it done?" → Manual verification
+→ Bugs in production → "What were the requirements again?"
+```
+
+**reqflow Solution:**
+```
+Vision in manifest.md → Feature spec (clear requirements) → Gap analysis
+→ Technical plan → Test plan (BEFORE coding) → TDD implementation
+→ Automated verification → Test results documentation → Deploy with confidence
+```
+
+### Key Differentiators
+
+1. **Test Cases Are First-Class Citizens**
+   - Write `test-plan.md` BEFORE implementation
+   - Document expected results upfront
+   - Record actual results in `test-results.md`
+   - Compare: expected vs actual (not just "tests pass")
+
+2. **Manual OR LLM-Fillable Manifests**
+   - Fill project manifest with ANY LLM (not just Claude)
+   - Or fill manually for full control
+   - Comprehensive template covers all project aspects
+   - Single source of truth for requirements
+
+3. **Comprehensive Testing Strategy**
+   - Unit tests (80%+ coverage enforced)
+   - Integration tests (API, database, services)
+   - E2E tests (user workflows)
+   - Performance tests (load, stress, benchmarks)
+   - Security tests (OWASP Top 10, dependencies)
+   - All documented with expected AND actual results
+
+4. **Requirements Traceability**
+   - Every feature traces back to manifest
+   - Gap analysis catches missing requirements
+   - Verification ensures requirements met
+   - Test results show HOW requirements were validated
+
+5. **Token Optimization Built-In**
+   - Efficient project structure (features isolated)
+   - Claude Code hooks prevent token waste
+   - ~82% token savings on typical projects
+
+### Who Should Use reqflow?
+
+**Perfect for:**
+- Solo developers who want discipline and structure
+- Teams needing shared requirements and testing standards
+- Projects where "done" must mean "verified and documented"
+- Anyone tired of "it works on my machine" syndrome
+- Developers using Claude Code or other AI coding assistants
+
+**Not ideal for:**
+- Quick prototypes or throwaway code
+- Projects with zero testing requirements
+- Teams that prefer freestyle development
 
 ---
 
@@ -221,16 +296,21 @@ Read: `.claude/workflows/*.md`
 
 ---
 
-## SpecFlow: Spec-Driven Development
+## reqflow Workflow: From Requirements to Production
 
-**NEW:** Streamlined feature development from idea to verified implementation.
+**The complete requirements-driven development workflow with comprehensive test documentation.**
 
-SpecFlow adds a complete spec-driven workflow to this template, guiding you through:
-- Requirements gathering and specification
-- Automated gap analysis
-- Technical planning with TDD focus
-- Task breakdown (RED → GREEN → REFACTOR)
-- Comprehensive verification
+reqflow guides you from initial project vision through to verified production code:
+
+**The Flow:**
+1. **Project Manifest** (once per project) - Define vision, requirements, constraints
+2. **Test Plan** (before coding) - Document what you'll test and expected results
+3. **Feature Development** (TDD-guided) - Implement with RED-GREEN-REFACTOR cycles
+4. **Test Execution** (continuous) - Run tests, document actual results
+5. **Verification** (automated) - Check requirements coverage and quality gates
+6. **Test Results** (documented) - Compare expected vs actual, track issues
+
+Each step is supported by templates, automation, and guided workflows
 
 ### Quick Start
 
@@ -323,7 +403,7 @@ Mark feature as complete in manifest.md.
 
 ### Feature Artifacts
 
-Each feature creates 5 documents in `.claude/features/NNN-feature-name/`:
+Each feature creates comprehensive documentation in `.claude/features/NNN-feature-name/`:
 
 1. **spec.md** - Feature specification
    - User stories with priorities
@@ -331,7 +411,7 @@ Each feature creates 5 documents in `.claude/features/NNN-feature-name/`:
    - Success criteria (measurable)
    - Assumptions and dependencies
 
-2. **gaps.md** - Gap analysis (unique to SpecFlow)
+2. **gaps.md** - Gap analysis
    - Critical gaps that block planning
    - Medium issues to address
    - Low priority improvements
@@ -349,25 +429,76 @@ Each feature creates 5 documents in `.claude/features/NNN-feature-name/`:
    - Checkboxes to track progress
    - Phase completion percentages
 
-5. **verification.md** - Post-implementation report
+5. **test-plan.md** - Pre-implementation test plan (NEW!)
+   - **Test cases:** What will be tested (unit, integration, E2E, performance, security)
+   - **Expected results:** What should happen for each test
+   - **Test data requirements:** Fixtures, mocks, test users
+   - **Acceptance criteria:** When tests are considered passing
+   - **Risk assessment:** High-risk areas and mitigation strategies
+
+6. **test-results.md** - Actual test execution results (NEW!)
+   - **Actual results:** What actually happened during testing
+   - **Pass/Fail status:** Detailed test execution outcomes
+   - **Failures documented:** Root cause analysis for each failure
+   - **Action items:** Assigned fixes with target dates
+   - **Coverage report:** Statement/branch/function coverage
+   - **Deployment readiness:** Clear go/no-go decision
+
+7. **verification.md** - Automated verification report
    - Test results and coverage
    - Requirements verification (FR/NFR)
    - Success criteria measurements
    - Overall score and recommendation
 
-### Why SpecFlow?
+### The Test Documentation Advantage
 
-**Prevents common issues:**
+**What makes reqflow different:**
+
+Traditional approach:
+```
+Write code → Run tests → "Tests pass" ✓ → Ship it
+(No record of what was tested or why tests were written)
+```
+
+reqflow approach:
+```
+Write test-plan.md (BEFORE coding):
+  - Test Case: UT-001 - Email validation
+  - Expected: Valid emails return true, invalid return false
+
+Implement → Run tests → Write test-results.md:
+  - Test Case: UT-001 - Email validation
+  - Expected: Valid emails return true, invalid return false
+  - Actual: ✅ PASS - All 50 test cases passed, coverage 100%
+
+Compare: Expected vs Actual (full traceability)
+```
+
+**Benefits:**
+- **Accountability:** Know exactly what was tested and what results were
+- **Debugging:** When tests fail, compare expected vs actual documented results
+- **Onboarding:** New team members see testing history and rationale
+- **Auditing:** Full test documentation for compliance/certification
+- **Learning:** Document WHY certain tests were written
+- **Regression:** Easily see if new failures match old expected behaviors
+
+### Why reqflow?
+
+**Prevents common development issues:**
 - ❌ Vague requirements → ✅ Clear spec with measurable criteria
 - ❌ Scope creep → ✅ Gap analysis catches missing requirements early
 - ❌ Architecture misalignment → ✅ Validated against manifest.md
 - ❌ Untested code → ✅ TDD-enforced (write tests first)
 - ❌ "Done but broken" → ✅ Comprehensive verification before merge
+- ❌ Lost test context → ✅ Full test plan + results documentation
+- ❌ Debugging nightmares → ✅ Compare expected vs actual results
+- ❌ Compliance burden → ✅ Audit trail built-in
 
 **Integrates with token optimization:**
 - All artifacts in `.claude/features/` (not bloating main context)
 - Manifest read once per feature (efficient)
 - Clear phase boundaries (use `/clear` between phases)
+- Test documentation isolated per feature
 
 **Example Project Structure:**
 ```
@@ -376,26 +507,33 @@ your-project/
 ├── .claude/
 │   ├── features/
 │   │   ├── 001-user-auth/
-│   │   │   ├── spec.md
-│   │   │   ├── gaps.md
-│   │   │   ├── plan.md
-│   │   │   ├── tasks.md
-│   │   │   └── verification.md
+│   │   │   ├── spec.md                   # Requirements
+│   │   │   ├── gaps.md                   # Gap analysis
+│   │   │   ├── plan.md                   # Technical plan
+│   │   │   ├── tasks.md                  # TDD task breakdown
+│   │   │   ├── test-plan.md              # ← What to test (BEFORE coding)
+│   │   │   ├── test-results.md           # ← Actual results (AFTER testing)
+│   │   │   └── verification.md           # Automated verification
 │   │   └── 002-payment/
-│   │       └── ...
-│   └── templates/                        # Templates for artifacts
-│       ├── manifest.md
-│       ├── spec.md
-│       ├── gaps.md
-│       ├── plan.md
-│       ├── tasks.md
-│       └── verification.md
+│   │       └── ... (same structure)
+│   ├── templates/                        # Templates for all artifacts
+│   │   ├── manifest.md
+│   │   ├── spec.md
+│   │   ├── gaps.md
+│   │   ├── plan.md
+│   │   ├── tasks.md
+│   │   ├── test-plan.md                  # ← NEW: Test plan template
+│   │   ├── test-results.md               # ← NEW: Test results template
+│   │   └── verification.md
+│   └── scripts/
+│       ├── validate-bash.sh              # Token optimization
+│       └── verify-feature.sh             # Automated verification
 └── ...
 ```
 
 ### TDD Discipline
 
-SpecFlow enforces Test-Driven Development:
+reqflow enforces Test-Driven Development:
 
 **RED Phase** - Write failing tests first:
 ```bash
@@ -418,22 +556,25 @@ Checkpoint: All tests PASS
 ```
 Checkpoint: Tests still PASS, code cleaner
 
-### SpecFlow vs Traditional
+### reqflow vs Traditional
 
 **Traditional Approach:**
 ```
 Idea → Start coding → Realize spec unclear → Back to requirements
-→ Missing tests → Broken in production → Hotfix → Technical debt
+→ Write tests (maybe) → "Tests pass" → Ship
+→ Bugs in production → "What was tested?" → Hotfix → Technical debt
 ```
 
-**SpecFlow Approach:**
+**reqflow Approach:**
 ```
 Idea → Spec with criteria → Gap analysis → Plan with TDD
-→ Tasks (RED-GREEN-REFACTOR) → Implement → Verify → Merge
+→ Write test-plan.md (expected results) → Tasks (RED-GREEN-REFACTOR)
+→ Implement → Run tests → Document test-results.md (actual results)
+→ Verify (requirements met?) → Merge with confidence
 → Update manifest → Next feature
 ```
 
-**Result:** Higher quality, fewer bugs, less rework.
+**Result:** Higher quality, fewer bugs, less rework, full test traceability.
 
 ---
 

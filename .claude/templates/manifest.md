@@ -4,6 +4,7 @@
 **Created:** {DATE}
 **Last Updated:** {DATE}
 **Status:** Active
+**Framework:** reqflow (Requirements-Driven Development Framework)
 
 ---
 
@@ -11,7 +12,7 @@
 
 > {VISION_PLACEHOLDER}
 >
-> **Instructions:** Replace this section with your project's high-level vision. What problem does this solve? What is the end goal? Keep it to 2-3 sentences that anyone can understand.
+> **Instructions for Manual/LLM Filling:** Replace this section with your project's high-level vision. What problem does this solve? What is the end goal? Keep it to 2-3 sentences that anyone can understand. Focus on the "why" and desired outcome.
 
 **Example:**
 > Build a secure, high-performance task management platform that helps remote teams coordinate work without cluttering their workflow. Users should be able to create, assign, and track tasks in under 10 seconds per action.
@@ -246,6 +247,404 @@
 - **Linting**: {LINTER} with zero tolerance for errors
 - **Type Safety**: {TYPE_SYSTEM} strict mode enabled
 - **Documentation**: All public APIs documented with examples
+
+---
+
+## Quality Assurance & Testing Strategy
+
+### Test Case Documentation Standards
+
+**IMPORTANT:** All features must document:
+1. **Test Cases** - What will be tested
+2. **Expected Results** - What should happen
+3. **Actual Results** - What actually happened during implementation
+4. **Pass/Fail Status** - Whether test passed
+
+Each feature directory (`.claude/features/{feature-id}/`) will contain:
+- `test-plan.md` - Planned test cases before implementation
+- `test-results.md` - Actual test results after implementation
+
+### Testing Levels
+
+#### 1. Unit Testing
+**Framework:** {UNIT_TEST_FRAMEWORK}
+
+**Standards:**
+- One test file per source file (`file.ts` → `file.test.ts`)
+- Minimum 80% line coverage, 75% branch coverage
+- Test pure functions with multiple input scenarios
+- Mock external dependencies
+- Fast execution (< 100ms per test)
+
+**Example Test Case Documentation:**
+```markdown
+### Test Case: UT-001 - User Email Validation
+**Function:** `validateEmail(email: string): boolean`
+**Test Cases:**
+1. Valid email formats
+2. Invalid email formats (missing @, no domain, etc.)
+3. Edge cases (empty string, null, undefined)
+
+**Expected Results:**
+- Valid emails return `true`
+- Invalid emails return `false`
+- Edge cases handled gracefully (no crashes)
+
+**Actual Results:** ✅ PASS
+- All 15 test cases passed
+- Coverage: 100% lines, 100% branches
+- Execution time: 45ms
+```
+
+#### 2. Integration Testing
+**Framework:** {INTEGRATION_TEST_FRAMEWORK}
+
+**Standards:**
+- Test interactions between modules/services
+- Use test database (not production)
+- Test API endpoints with real HTTP requests
+- Verify database transactions
+- Test authentication/authorization flows
+
+**Example Test Case Documentation:**
+```markdown
+### Test Case: IT-002 - User Registration Flow
+**Scenario:** Complete user registration from form submission to database entry
+
+**Test Steps:**
+1. POST /api/auth/register with valid user data
+2. Verify response status 201
+3. Check user exists in database
+4. Verify password is hashed (not plaintext)
+5. Verify email confirmation sent
+
+**Expected Results:**
+- API returns 201 with user object (no password)
+- User record exists in `users` table
+- Password field contains bcrypt hash
+- Email sent to user's email address
+
+**Actual Results:** ✅ PASS
+- All assertions passed
+- Response time: 245ms (within 500ms budget)
+- Email sent successfully to test inbox
+```
+
+#### 3. End-to-End Testing
+**Framework:** {E2E_TEST_FRAMEWORK}
+
+**Standards:**
+- Test complete user workflows
+- Run in browser automation (Playwright, Cypress, etc.)
+- Test critical paths only (not exhaustive)
+- Run in CI before deployment
+
+**Example Test Case Documentation:**
+```markdown
+### Test Case: E2E-003 - Task Creation and Assignment
+**User Story:** As a project manager, I can create a task and assign it to a team member
+
+**Test Steps:**
+1. Login as project manager
+2. Navigate to Tasks page
+3. Click "New Task" button
+4. Fill form: title, description, assignee, due date
+5. Click "Create Task"
+6. Verify task appears in task list
+7. Verify assignee receives notification
+
+**Expected Results:**
+- Task created successfully
+- Task visible in task list with correct data
+- Assignee receives email notification
+- Page redirects to task detail view
+
+**Actual Results:** ✅ PASS
+- Task created in 1.2s
+- All fields correctly saved
+- Email notification sent (verified in Mailhog)
+- Redirect worked as expected
+```
+
+#### 4. Performance Testing
+**Tools:** {PERFORMANCE_TEST_TOOLS}
+
+**Standards:**
+- Load testing for peak traffic scenarios
+- Stress testing to find breaking points
+- Measure response times (p50, p95, p99)
+- Test database query performance
+
+**Example Test Case Documentation:**
+```markdown
+### Test Case: PERF-004 - API Endpoint Performance Under Load
+**Endpoint:** GET /api/tasks
+**Load:** 1000 concurrent users, 10 requests per second
+
+**Expected Results:**
+- p95 response time ≤ 500ms
+- p99 response time ≤ 1000ms
+- 0% error rate
+- Database connection pool stable (< 80% utilization)
+
+**Actual Results:** ⚠️ PARTIAL PASS
+- p95: 450ms ✅
+- p99: 1200ms ❌ (exceeded by 200ms)
+- Error rate: 0.2% (2 timeouts) ❌
+- DB pool: 65% utilization ✅
+
+**Action Items:**
+- Add database query index on `tasks.user_id`
+- Implement Redis caching for frequently accessed tasks
+- Retest after optimization
+```
+
+#### 5. Security Testing
+**Tools:** {SECURITY_TEST_TOOLS}
+
+**Standards:**
+- OWASP Top 10 vulnerability testing
+- Dependency vulnerability scanning
+- Penetration testing for critical features
+- Authentication/authorization testing
+
+**Example Test Case Documentation:**
+```markdown
+### Test Case: SEC-005 - SQL Injection Prevention
+**Target:** All database queries
+
+**Test Cases:**
+1. Inject SQL in login form
+2. Inject SQL in search parameters
+3. Inject SQL in URL parameters
+4. Test with parameterized queries
+
+**Expected Results:**
+- All SQL injection attempts fail
+- No database errors exposed to user
+- All queries use parameterized statements
+
+**Actual Results:** ✅ PASS
+- All 50 injection attempts blocked
+- Error messages sanitized
+- Prisma ORM prevents raw SQL injection
+```
+
+### Test Execution Strategy
+
+#### Pre-Commit Testing
+Run automatically via git hooks:
+```bash
+npm run lint        # Linting
+npm run type-check  # TypeScript checks
+npm run test:unit   # Unit tests (fast)
+```
+
+#### Pre-Push Testing
+Run before pushing to remote:
+```bash
+npm run test:integration  # Integration tests
+npm run test:coverage     # Coverage report
+```
+
+#### CI/CD Testing Pipeline
+Run on every pull request:
+```yaml
+1. Lint & Type Check
+2. Unit Tests (all)
+3. Integration Tests (all)
+4. E2E Tests (critical paths)
+5. Performance Tests (smoke)
+6. Security Scans (dependencies)
+7. Build Verification
+```
+
+#### Pre-Deployment Testing
+Run before production deployment:
+```bash
+npm run test:e2e:full      # All E2E tests
+npm run test:performance   # Load testing
+npm run security:scan      # Security audit
+```
+
+### Test Results Tracking
+
+**Location:** `.claude/features/{feature-id}/test-results.md`
+
+**Format:**
+```markdown
+# Test Results: {Feature Name}
+
+**Feature ID:** {feature-id}
+**Test Date:** {DATE}
+**Tested By:** {NAME/LLM}
+**Test Environment:** {ENV}
+
+## Summary
+- **Total Test Cases:** 45
+- **Passed:** 42 ✅
+- **Failed:** 2 ❌
+- **Skipped:** 1 ⏭️
+- **Overall Status:** ⚠️ NEEDS FIXES
+
+## Unit Tests
+| Test ID | Description | Expected | Actual | Status |
+|---------|-------------|----------|--------|--------|
+| UT-001 | Email validation | Valid/Invalid detection | All cases passed | ✅ PASS |
+| UT-002 | Password hashing | Bcrypt hash returned | Hash returned | ✅ PASS |
+| UT-003 | Token generation | JWT token generated | Token valid | ✅ PASS |
+
+## Integration Tests
+| Test ID | Description | Expected | Actual | Status |
+|---------|-------------|----------|--------|--------|
+| IT-001 | User registration | 201 + user object | 201 returned | ✅ PASS |
+| IT-002 | Login flow | JWT token returned | Token expired | ❌ FAIL |
+| IT-003 | Password reset | Email sent | Email sent | ✅ PASS |
+
+## E2E Tests
+| Test ID | Description | Expected | Actual | Status |
+|---------|-------------|----------|--------|--------|
+| E2E-001 | Complete signup | User created | User created | ✅ PASS |
+| E2E-002 | Task creation | Task in DB | Task in DB | ✅ PASS |
+
+## Performance Tests
+| Metric | Target | Actual | Status |
+|--------|--------|--------|--------|
+| p95 Response Time | ≤500ms | 450ms | ✅ PASS |
+| p99 Response Time | ≤1000ms | 1200ms | ❌ FAIL |
+| Error Rate | 0% | 0.2% | ⚠️ WARN |
+
+## Failures & Action Items
+
+### IT-002: Login Flow Token Expiry (CRITICAL)
+**Issue:** JWT token expires immediately after generation
+**Root Cause:** `expiresIn` config set to 0 instead of "15m"
+**Fix:** Update `auth.config.ts` line 12
+**Assignee:** {NAME}
+**Target:** {DATE}
+
+### PERF: p99 Response Time Exceeded
+**Issue:** 99th percentile exceeds budget by 200ms
+**Root Cause:** Database query without index
+**Fix:** Add index on `tasks.user_id`
+**Assignee:** {NAME}
+**Target:** {DATE}
+
+## Test Coverage Report
+```
+File                | % Stmts | % Branch | % Funcs | % Lines |
+--------------------|---------|----------|---------|---------|
+All files           |   82.5  |   76.3   |   85.1  |   82.1  |
+ auth/              |   95.2  |   88.4   |   100   |   94.8  |
+  login.ts          |   100   |   100    |   100   |   100   |
+  register.ts       |   92.3  |   80.0   |   100   |   91.7  |
+ tasks/             |   78.1  |   70.2   |   80.0  |   77.9  |
+  create.ts         |   85.0  |   75.0   |   100   |   84.6  |
+  list.ts           |   72.5  |   66.7   |   66.7  |   72.2  |
+```
+
+**Coverage Status:** ✅ MEETS THRESHOLD (≥80% lines, ≥75% branches)
+
+## Sign-Off
+
+- [ ] All critical tests pass
+- [ ] Test coverage meets requirements (≥80%)
+- [ ] Performance budgets met
+- [ ] Security tests pass
+- [ ] No known blockers
+
+**Approved By:** {NAME}
+**Approval Date:** {DATE}
+```
+
+### Regression Testing
+
+**Trigger:** Before every release and when fixing bugs
+
+**Process:**
+1. Run full test suite (unit + integration + E2E)
+2. Verify no previously passing tests now fail
+3. Document any new failures
+4. Fix regressions before release
+
+---
+
+## Acceptance Criteria & Definition of Done
+
+### Feature Acceptance Criteria Template
+
+For each feature, define clear acceptance criteria:
+
+```markdown
+## Acceptance Criteria: {Feature Name}
+
+### Functional Requirements (Must Have)
+- [ ] FR-1: User can {action} by {method}
+- [ ] FR-2: System responds with {expected behavior}
+- [ ] FR-3: Data is persisted to {storage}
+
+### Non-Functional Requirements
+- [ ] NFR-1: Response time ≤ {time}
+- [ ] NFR-2: Handles {n} concurrent users
+- [ ] NFR-3: Accessible (WCAG {level})
+
+### Edge Cases
+- [ ] EC-1: Handles empty input gracefully
+- [ ] EC-2: Validates malformed data
+- [ ] EC-3: Prevents duplicate entries
+
+### Success Criteria
+- [ ] SC-1: All unit tests pass (coverage ≥80%)
+- [ ] SC-2: Integration tests pass
+- [ ] SC-3: Manual testing completed
+- [ ] SC-4: Code review approved
+- [ ] SC-5: Documentation updated
+```
+
+### Definition of Done (DoD)
+
+A feature is considered "Done" when ALL criteria are met:
+
+#### Code Complete
+- [ ] All functionality implemented per spec
+- [ ] Code follows style guide and passes linter
+- [ ] No compiler errors or warnings
+- [ ] Type safety enforced (if applicable)
+
+#### Testing Complete
+- [ ] Unit tests written and passing (≥80% coverage)
+- [ ] Integration tests written and passing
+- [ ] E2E tests written and passing (critical paths)
+- [ ] Manual testing performed and documented
+- [ ] Regression testing shows no broken existing features
+
+#### Documentation Complete
+- [ ] Code comments added for complex logic
+- [ ] API documentation updated
+- [ ] User-facing documentation updated (if applicable)
+- [ ] CLAUDE.md updated with new files/structure
+- [ ] Changelog entry added
+
+#### Quality Assurance
+- [ ] Code review completed and approved
+- [ ] No high/critical security vulnerabilities
+- [ ] Performance budgets met
+- [ ] Accessibility requirements met (if applicable)
+- [ ] Browser/device compatibility verified (if applicable)
+
+#### Deployment Ready
+- [ ] Feature flag implemented (if needed)
+- [ ] Database migrations created and tested
+- [ ] Environment variables documented
+- [ ] CI/CD pipeline passes all checks
+- [ ] Staging environment tested
+
+#### Sign-Off
+- [ ] Product owner approval (if required)
+- [ ] Stakeholder demo completed (if required)
+- [ ] Feature marked complete in manifest
+
+**DoD Checklist Enforcement:** Run `/feature verify {feature-id}` to automatically check DoD compliance.
 
 ---
 
